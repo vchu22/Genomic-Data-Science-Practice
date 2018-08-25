@@ -4,16 +4,71 @@ def gc(dna):
     gcpercent = float(dna.count('c')+dna.count('C')+dna.count('g')+dna.count('G'))*100.0/(len(dna)-nbases)
     return gcpercent
 
-def has_stop_codon(dna,frame=0):
-    "checks if there's a in-frame stop codon"
-    stop_codon_found = False
+def find_stop_codon(dna,frame=0):
+    """find all the first in-frame stop codon and return position it's found"""
     stop_codons=['tga','tag','taa']
+    positions = []
+    #### T2(n) = O(n/3)
     for i in range(frame,len(dna),3): # check for every 3 bases
         codon = dna[i:i+3].lower()
-        if codon in stop_codons:
-            stop_codon_found = True
-            break
-    return stop_codon_found
+        if codon in stop_codons:  #### f(n) = 3
+            positions.append(i)
+    return positions
+
+def find_start_codon(dna,frame=0):
+    """find all the in-frame start codon and returns the position it's found"""
+    positions = []
+    start_codons='atg'
+    #### T1(n) = O(n/3)
+    for i in range(frame,len(dna),3): # check for every 3 bases
+        codon = dna[i:i+3].lower()
+        if codon == start_codons:
+             positions.append(i)
+    return positions
+
+def compute_ORF_segments(start_positions, stop_positions):
+    """given a list of start codons and stop codons, return a list of segments that can possibly encode proteins"""
+    segments = []
+    prev_index = 0      # the previous index of stop_positions
+    ### T3(n) = Ta(n)*Tb(n) = O(n*n)
+    for i in range(len(start_positions)):               ### Ta(n)
+        for j in range(prev_index,len(stop_positions)): ### Tb(n)
+            if stop_positions[j] > start_positions[i]+5:   # if stop codon is after the start codon and it must have at least one codon in between
+                segments.append([start_positions[i],stop_positions[j]])
+                prev_index = j
+                break
+    return segments
+
+def find_ORF(dna):
+    """find all the ORF given a DNA string"""
+    start_codon_found = False
+    stop_codon_found = False
+    start_codon_positions = []
+    stop_codon_positions = []
+    forward_segments = []
+    reverse_segments = []
+    # check if it has start codon (must have a start codon before stop codon)
+    #### T(n) = 3*(T1(n)+T2(n)+T3(n)) = 3*(O(n)+O(n)+O(n*n)) = 3*O(n^2)
+    for i in range(0,3):
+        start_codon_positions = find_start_codon(dna, i)         #### T1(n)
+        if len(start_codon_positions) != 0:         # if the length is 0, there is no start codon
+            start_codon_found = True
+            # check if it has stop codon. It must have at least one codon in between start and stop codon
+            stop_codon_positions = find_stop_codon(dna,i+6)         #### T2(n)
+            if len(stop_codon_positions) != 0:      # same as the previous if statement, length of 0 == no stop codon
+                stop_codon_found = True
+                forward_segments.append(compute_ORF_segments(start_codon_positions,stop_codon_positions))   #### T3(n)
+    
+    # check the reverse only if no ORF found, otherwise this step is redundant
+    if not (start_codon_found and stop_codon_found):
+        dna = reverse(dna)
+        for i in range(0,3):
+            start_codon_positions = find_start_codon(dna, i)
+            if len(start_codon_positions) != 0:
+                stop_codon_positions = find_stop_codon(dna,i+6)
+                if len(stop_codon_positions) != 0:
+                    reverse_segments.append(compute_ORF_segments(start_codon_positions,stop_codon_positions))
+    return forward_segments, reverse_segments
 
 def reversecomplement(seq):
     "returns reverse complement of a sequence"
