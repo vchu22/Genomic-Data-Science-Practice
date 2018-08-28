@@ -30,8 +30,8 @@ def compute_ORF_segments(start_positions, stop_positions):
     """given a list of start codons and stop codons, return a list of segments that can possibly encode proteins"""
     segments = []
     prev_index = 0      # the previous index of stop_positions
-    #### Time complexity: T3(n) = Ta(n)*Tb(n) = O(n*n)
-    for i in range(len(start_positions)):               ### Ta(n)
+    #### Time complexity: T3(m,n) = Ta(m)*Tb(n) = O(m*n)
+    for i in range(len(start_positions)):               ### Ta(m)
         for j in range(prev_index,len(stop_positions)): ### Tb(n)
             if stop_positions[j] > start_positions[i]+5:   # if stop codon is after the start codon and it must have at least one codon in between
                 segments.append([start_positions[i],stop_positions[j]])
@@ -48,7 +48,7 @@ def find_ORF(dna):
     forward_segments = []
     reverse_segments = []
     # check if it has start codon (must have a start codon before stop codon)
-    #### Time complexity: T(n) = 3*(T1(n)+T2(n)+T3(n)) = 3*(O(n)+O(n)+O(n*n)) = 3*O(n^2)
+    #### Time complexity: T(n) = 3*(T1(n)+T2(n)+T3(m,n)) = 3*(O(n)+O(n)+O(m*n)) = O(mn)
     for i in range(0,3):
         start_codon_positions = find_start_codon(dna, i)         #### T1(n)
         if len(start_codon_positions) != 0:         # if the length is 0, there is no start codon
@@ -57,7 +57,7 @@ def find_ORF(dna):
             stop_codon_positions = find_stop_codon(dna,i+6)         #### T2(n)
             if len(stop_codon_positions) != 0:      # same as the previous if statement, length of 0 == no stop codon
                 stop_codon_found = True
-                forward_segments.append(compute_ORF_segments(start_codon_positions,stop_codon_positions))   #### T3(n)
+                forward_segments.append(compute_ORF_segments(start_codon_positions,stop_codon_positions))   #### T3(m,n)
     
     # check the reverse only if no ORF found, otherwise this step is redundant
     if not (start_codon_found and stop_codon_found):
