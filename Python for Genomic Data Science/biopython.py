@@ -20,13 +20,13 @@ try:
     E_VALUE_THRESH = 0.01
     for alignment in blast_record.alignments:
         for hsp in alignment.hsps:
-                if hsp.exepect < E_VALUE_THRESH:
-                        print "\n******Alignment*****"
-                        print "sequence:",alignment.title
-                        print "length:",alignment.length
-                        print "e value:",hsp.expect
-                        print hsp.query
-                        print hsp.match
-                        print hsp.sbjct
+            if hsp.expect < E_VALUE_THRESH:
+                print "\n******Alignment*****"
+                print "sequence:",alignment.title
+                print "length:",alignment.length
+                print "e value:",hsp.expect
+                print hsp.query
+                print hsp.match
+                print hsp.sbjct
 except IndexError:
     print "Need to include a fasta filename/path in the second argument"
