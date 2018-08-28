@@ -5,10 +5,10 @@ def gc(dna):
     return gcpercent
 
 def find_stop_codon(dna,frame=0):
-    """find all the first in-frame stop codon and return position it's found"""
+    """find all the first in-frame stop codon and return position where it's found"""
     stop_codons=['tga','tag','taa']
     positions = []
-    #### T2(n) = O(n/3)
+    #### Time complexity: T2(n) = O(n/3)
     for i in range(frame,len(dna),3): # check for every 3 bases
         codon = dna[i:i+3].lower()
         if codon in stop_codons:  #### f(n) = 3
@@ -16,10 +16,10 @@ def find_stop_codon(dna,frame=0):
     return positions
 
 def find_start_codon(dna,frame=0):
-    """find all the in-frame start codon and returns the position it's found"""
+    """find all the in-frame start codon and returns the position where it's found"""
     positions = []
     start_codons='atg'
-    #### T1(n) = O(n/3)
+    #### Time complexity: T1(n) = O(n/3)
     for i in range(frame,len(dna),3): # check for every 3 bases
         codon = dna[i:i+3].lower()
         if codon == start_codons:
@@ -30,7 +30,7 @@ def compute_ORF_segments(start_positions, stop_positions):
     """given a list of start codons and stop codons, return a list of segments that can possibly encode proteins"""
     segments = []
     prev_index = 0      # the previous index of stop_positions
-    ### T3(n) = Ta(n)*Tb(n) = O(n*n)
+    #### Time complexity: T3(n) = Ta(n)*Tb(n) = O(n*n)
     for i in range(len(start_positions)):               ### Ta(n)
         for j in range(prev_index,len(stop_positions)): ### Tb(n)
             if stop_positions[j] > start_positions[i]+5:   # if stop codon is after the start codon and it must have at least one codon in between
@@ -48,7 +48,7 @@ def find_ORF(dna):
     forward_segments = []
     reverse_segments = []
     # check if it has start codon (must have a start codon before stop codon)
-    #### T(n) = 3*(T1(n)+T2(n)+T3(n)) = 3*(O(n)+O(n)+O(n*n)) = 3*O(n^2)
+    #### Time complexity: T(n) = 3*(T1(n)+T2(n)+T3(n)) = 3*(O(n)+O(n)+O(n*n)) = 3*O(n^2)
     for i in range(0,3):
         start_codon_positions = find_start_codon(dna, i)         #### T1(n)
         if len(start_codon_positions) != 0:         # if the length is 0, there is no start codon
