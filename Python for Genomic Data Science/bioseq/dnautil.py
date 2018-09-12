@@ -9,7 +9,7 @@ def find_stop_codon(dna,frame=0):
     stop_codons=['tga','tag','taa']
     positions = []
     #### Time complexity: T2(n) = O(n/3)
-    for i in range(frame,len(dna),3): # check for every 3 bases
+    for i in range(frame,len(dna),3): # one codon has a length of 3 bases, check for every 3 bases
         codon = dna[i:i+3].lower()
         if codon in stop_codons:  #### f(n) = 3
             positions.append(i)
@@ -33,7 +33,9 @@ def compute_ORF_segments(start_positions, stop_positions):
     #### Time complexity: T3(m,n) = Ta(m)*Tb(n) = O(m*n)
     for i in range(len(start_positions)):               ### Ta(m)
         for j in range(prev_index,len(stop_positions)): ### Tb(n)
-            if stop_positions[j] > start_positions[i]+5:   # if stop codon is after the start codon and it must have at least one codon in between
+            # stop codon must be after the start codon, and there must be at least 50 codon in between to create protein
+            # according to https://www.quora.com/How-many-amino-acids-are-required-in-a-protein-to-call-it-protein
+            if stop_positions[j] >= start_positions[i]+153:
                 segments.append([start_positions[i],stop_positions[j]])
                 prev_index = j
                 break

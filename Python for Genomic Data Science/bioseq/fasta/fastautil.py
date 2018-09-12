@@ -13,4 +13,4 @@ def read_fasta_file(filename):
                 seqs[name] += line          # appending each line to the sequence
         return seqs
     except IOError:
-        print "File %s does not exist"%filename
+        print("File %s does not exist",filename)
